@@ -244,7 +244,7 @@ const TEMPLATE_B64="UEsDBBQAAAAIABmEbFxGx01IlQAAAM0AAAAQAAAAZG9jUHJvcHMvYXBwLnht
 
 // ============ STATE ============
 let CASES=[];let caseMap={};let updates={};let expanded={};let currentCase=null;
-SECTIONS.forEach(s=>expanded[s]=true);
+SECTIONS.forEach(s=>expanded[s]=false);
 
 function loadCases(){try{const d=localStorage.getItem("diligencias_cases");if(d){CASES=JSON.parse(d)}else{CASES=[...DEFAULT_CASES]}}catch(e){CASES=[...DEFAULT_CASES]}rebuildMap()}
 function saveCases(){localStorage.setItem("diligencias_cases",JSON.stringify(CASES))}
