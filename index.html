@@ -1,549 +1,498 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a5276">
-<title>Diligências</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f0f2f5;
-    overscroll-behavior: none;
-  }
-  #app {
-    max-width: 480px;
-    margin: 0 auto;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: #f0f2f5;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a5276">
+    <title>Diligências Pro</title>
+    
+    <!-- Link para ícones e Biblioteca Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
 
-  /* ===== HEADER ===== */
-  .header {
-    background: linear-gradient(135deg, #1a5276, #2e86c1);
-    padding: 20px 16px 14px;
-    position: sticky; top: 0; z-index: 10;
-  }
-  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .header-logo { font-size: 28px; }
-  .header-title { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
-  .header-sub { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 1px; }
-  .search-wrap { position: relative; }
-  .search-input {
-    width: 100%; padding: 10px 36px 10px 14px; border-radius: 10px;
-    border: none; font-size: 14px; background: rgba(255,255,255,0.15);
-    color: #fff; outline: none;
-  }
-  .search-input::placeholder { color: rgba(255,255,255,0.5); }
-  .search-clear {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer;
-  }
+    <style>
+        :root {
+            --primary: #007AFF; /* Azul iOS */
+            --bg: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --text-main: #000000;
+            --text-sec: #8E8E93;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
 
-  /* ===== LIST ===== */
-  .list-body { flex: 1; padding: 8px 10px 90px; }
-  .section-block { margin-bottom: 6px; }
-  .section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; padding: 12px 12px 12px 14px; background: #fff;
-    border: none; border-radius: 10px 10px 0 0; cursor: pointer; text-align: left;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .section-left { display: flex; align-items: center; gap: 8px; }
-  .section-icon { font-size: 16px; }
-  .section-name { font-size: 13px; font-weight: 700; color: #333; }
-  .section-right { display: flex; align-items: center; gap: 6px; }
-  .section-badge {
-    color: #fff; font-size: 10px; font-weight: 700; border-radius: 10px;
-    padding: 2px 7px; min-width: 18px; text-align: center;
-  }
-  .chevron {
-    font-size: 20px; color: #999; transition: transform 0.2s; font-weight: 300; display: inline-block;
-  }
-  .chevron.open { transform: rotate(90deg); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  .case-card {
-    display: block; width: 100%; padding: 12px 14px; background: #fff;
-    border: none; border-top: 1px solid #f0f0f0; cursor: pointer; text-align: left;
-    transition: background 0.15s;
-  }
-  .case-card:active { background: #f8f9fa; }
-  .case-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .case-parte { font-size: 14px; font-weight: 600; color: #1a1a1a; flex: 1; line-height: 1.3; }
-  .update-badge {
-    color: #fff; font-size: 10px; font-weight: 700; border-radius: 8px;
-    padding: 1px 6px; flex-shrink: 0;
-  }
-  .case-processo { font-size: 11px; color: #888; margin-top: 3px; font-family: 'SF Mono', Consolas, monospace; }
-  .case-meta { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-  .meta-tag { font-size: 11px; color: #666; background: #f5f5f5; padding: 2px 8px; border-radius: 6px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.4;
+        }
 
-  /* ===== FAB ===== */
-  .fab {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(135deg, #1a5276, #2e86c1); color: #fff;
-    border: none; border-radius: 28px; padding: 14px 24px; font-size: 14px;
-    font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(26,82,118,0.4);
-    z-index: 20;
-  }
+        /* ===== HEADER ESTILO IOS ===== */
+        .header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: calc(var(--safe-top) + 10px) 16px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 0.5px solid #C6C6C8;
+        }
 
-  /* ===== DETAIL ===== */
-  .detail-header {
-    padding: 16px 16px 20px; color: #fff; position: sticky; top: 0; z-index: 10;
-  }
-  .back-btn {
-    background: rgba(255,255,255,0.2); border: none; color: #fff;
-    padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer;
-    margin-bottom: 10px; font-weight: 600;
-  }
-  .detail-title { font-size: 20px; font-weight: 700; line-height: 1.25; }
-  .detail-sub { font-size: 12px; opacity: 0.8; margin-top: 4px; font-family: 'SF Mono', Consolas, monospace; }
-  .detail-chips { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .chip { font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 6px; color: #fff; }
+        .header-title {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
 
-  .detail-body { flex: 1; padding: 14px 14px 130px; overflow-y: auto; }
-  .info-card {
-    background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 3px solid #2e86c1;
-  }
-  .info-card.warning { border-left-color: #f0ad4e; }
-  .info-label {
-    font-size: 11px; font-weight: 700; color: #2e86c1; text-transform: uppercase;
-    letter-spacing: 0.5px; margin-bottom: 6px;
-  }
-  .info-card.warning .info-label { color: #b8860b; }
-  .info-text { font-size: 13px; color: #333; line-height: 1.5; white-space: pre-wrap; }
+        .search-container {
+            background: #E3E3E6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+        }
 
-  .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; }
-  .divider-line { flex: 1; height: 1px; background: #ddd; }
-  .divider-text { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .search-container input {
+            background: transparent;
+            border: none;
+            width: 100%;
+            font-size: 17px;
+            outline: none;
+            margin-left: 8px;
+        }
 
-  .empty-state { text-align: center; color: #aaa; font-size: 13px; padding: 20px 0; font-style: italic; }
+        /* ===== CONTEÚDO ===== */
+        .content {
+            padding: 16px;
+            padding-bottom: calc(100px + var(--safe-bottom));
+        }
 
-  .update-card {
-    background: #fff; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .update-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .update-date { font-size: 11px; color: #999; font-weight: 600; }
-  .delete-btn {
-    background: none; border: none; color: #ccc; font-size: 14px; cursor: pointer;
-    padding: 2px 6px; border-radius: 4px;
-  }
-  .delete-btn:hover { color: #e74c3c; }
-  .update-text { font-size: 13px; color: #333; line-height: 1.5; white-space: pre-wrap; }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 24px 0 8px 4px;
+            color: var(--text-main);
+        }
 
-  .input-bar {
-    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e8e8e8;
-    padding: 10px 14px; display: flex; gap: 10px; align-items: flex-end;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 20;
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-  .input-bar textarea {
-    flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd;
-    font-size: 14px; resize: none; font-family: inherit; outline: none; line-height: 1.4;
-  }
-  .send-btn {
-    color: #fff; border: none; border-radius: 10px; padding: 10px 18px;
-    font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0;
-    transition: opacity 0.2s;
-  }
-  .send-btn:disabled { opacity: 0.4; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
 
-  /* ===== EXPORT ===== */
-  .export-header {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    padding: 16px 16px 20px; color: #fff; position: sticky; top: 0; z-index: 10;
-  }
-  .export-title { font-size: 20px; font-weight: 700; margin-top: 8px; }
-  .export-count { font-size: 12px; opacity: 0.7; margin-top: 4px; }
-  .export-body { flex: 1; padding: 14px 14px 30px; overflow-y: auto; }
-  .export-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .export-action {
-    color: #fff; border: none; border-radius: 10px; padding: 14px 20px;
-    font-size: 15px; font-weight: 700; cursor: pointer; text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .export-action:active { opacity: 0.85; }
-  .export-feedback { text-align: center; color: #1e8449; font-weight: 700; font-size: 14px; padding: 4px; }
-  .preview-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-  .preview-box {
-    background: #1a1a2e; color: #e0e0e0; padding: 14px; border-radius: 10px;
-    font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;
-    font-family: 'SF Mono', Consolas, monospace; max-height: 400px; overflow-y: auto;
-  }
-  .clear-btn {
-    margin-top: 20px; width: 100%; background: #fff; border: 1px solid #e74c3c;
-    color: #e74c3c; border-radius: 10px; padding: 12px; font-size: 14px;
-    font-weight: 600; cursor: pointer;
-  }
-  .hidden { display: none !important; }
-</style>
+        .card:active { transform: scale(0.98); background: #F9F9F9; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .case-name { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 4px; }
+        .case-id { font-size: 13px; color: var(--text-sec); font-family: ui-monospace, SFMono-Regular, monospace; }
+        .case-tag {
+            font-size: 12px;
+            background: #E9E9EB;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        .badge {
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* ===== BOTÕES FLUTUANTES ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 20px calc(12px + var(--safe-bottom));
+            display: flex;
+            justify-content: space-around;
+            border-top: 0.5px solid #C6C6C8;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 11px;
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-btn i { font-size: 24px; }
+
+        /* ===== MODAL / DETALHES ===== */
+        .view {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+
+        .view.active { display: flex; }
+
+        .view-header {
+            padding: calc(var(--safe-top) + 10px) 16px 12px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 0.5px solid #C6C6C8;
+        }
+
+        .back-btn { color: var(--primary); font-size: 17px; border: none; background: none; font-weight: 500; }
+
+        .info-box {
+            background: #fff;
+            margin: 16px;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .label { font-size: 12px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; margin-bottom: 4px; }
+        .val { font-size: 15px; color: #333; margin-bottom: 12px; white-space: pre-wrap; }
+
+        /* ===== ÁREA DE TEXTO ===== */
+        .input-area {
+            background: #fff;
+            padding: 12px 16px calc(12px + var(--safe-bottom));
+            border-top: 0.5px solid #C6C6C8;
+            display: flex;
+            gap: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            background: #F2F2F7;
+            border: none;
+            border-radius: 18px;
+            padding: 10px 15px;
+            font-size: 15px;
+            max-height: 100px;
+            resize: none;
+        }
+
+        .btn-send {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-weight: 700;
+        }
+
+        .hidden { display: none; }
+
+    </style>
 </head>
 <body>
 
 <div id="app">
-  <!-- LIST VIEW -->
-  <div id="view-list">
-    <div class="header">
-      <div class="header-top">
-        <div class="header-logo">⚖️</div>
-        <div>
-          <div class="header-title">Diligências</div>
-          <div class="header-sub" id="header-sub"></div>
+    <!-- TELA PRINCIPAL -->
+    <div id="main-view">
+        <div class="header">
+            <div class="header-title">Diligências</div>
+            <div class="search-container">
+                <span>🔍</span>
+                <input type="text" id="search" placeholder="Buscar parte ou processo..." oninput="renderList()">
+            </div>
         </div>
-      </div>
-      <div class="search-wrap">
-        <input type="text" class="search-input" id="search-input" placeholder="Buscar por parte, processo, vara...">
-        <button class="search-clear hidden" id="search-clear" onclick="clearSearch()">✕</button>
-      </div>
-    </div>
-    <div class="list-body" id="list-body"></div>
-    <button class="fab hidden" id="fab" onclick="showExport()"></button>
-  </div>
 
-  <!-- DETAIL VIEW -->
-  <div id="view-detail" class="hidden">
-    <div class="detail-header" id="detail-header">
-      <button class="back-btn" onclick="goBack()">← Voltar</button>
-      <div class="detail-title" id="detail-title"></div>
-      <div class="detail-sub" id="detail-sub"></div>
-      <div class="detail-chips" id="detail-chips"></div>
-    </div>
-    <div class="detail-body" id="detail-body"></div>
-    <div class="input-bar">
-      <textarea id="note-input" rows="2" placeholder="Registrar nova atualização..."></textarea>
-      <button class="send-btn" id="send-btn" onclick="addUpdate()" disabled>Salvar</button>
-    </div>
-  </div>
+        <div class="content" id="list-content">
+            <!-- Items serão injetados aqui -->
+        </div>
 
-  <!-- EXPORT VIEW -->
-  <div id="view-export" class="hidden">
-    <div class="export-header">
-      <button class="back-btn" onclick="goBackFromExport()">← Voltar</button>
-      <div class="export-title">Exportar Atualizações</div>
-      <div class="export-count" id="export-count"></div>
+        <nav class="bottom-nav">
+            <button class="nav-btn" onclick="renderList()"><i>📋</i><span>Lista</span></button>
+            <button class="nav-btn" onclick="openImport()"><i>📥</i><span>Importar</span></button>
+            <button class="nav-btn" onclick="openExport()"><i>📤</i><span>Exportar</span></button>
+        </nav>
     </div>
-    <div class="export-body">
-      <div class="export-btns">
-        <button class="export-action" style="background:#1a5276" onclick="downloadTXT()">📄 Baixar .TXT</button>
-        <button class="export-action" style="background:#1e8449" onclick="downloadCSV()">📊 Baixar .CSV (Excel)</button>
-        <button class="export-action" style="background:#7d3c98" onclick="copyText()">📋 Copiar Texto</button>
-        <div class="export-feedback hidden" id="export-feedback"></div>
-      </div>
-      <div class="preview-label">Pré-visualização:</div>
-      <pre class="preview-box" id="preview-box"></pre>
-      <button class="clear-btn" onclick="clearAll()">🗑️ Limpar Todas as Atualizações</button>
+
+    <!-- TELA DE DETALHES -->
+    <div id="detail-view" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="closeView('detail-view')">❮ Voltar</button>
+            <div style="font-weight: 600; flex: 1; text-align: center;" id="det-title">Detalhes</div>
+            <div style="width: 60px;"></div>
+        </div>
+        <div style="flex: 1; overflow-y: auto;" id="det-body">
+            <!-- Detalhes do processo -->
+        </div>
+        <div class="input-area">
+            <textarea id="note-text" placeholder="Adicionar atualização..." rows="1"></textarea>
+            <button class="btn-send" onclick="addNote()">↑</button>
+        </div>
     </div>
-  </div>
+
+    <!-- TELA DE IMPORTAÇÃO -->
+    <div id="import-view" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="closeView('import-view')">Fechar</button>
+            <div style="font-weight: 600;">Importar Excel</div>
+        </div>
+        <div class="info-box">
+            <p style="margin-bottom: 15px; font-size: 14px;">Carregue uma planilha (.xlsx ou .csv) para atualizar a lista de processos.</p>
+            <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" style="margin-bottom: 20px;">
+            <button onclick="handleImport()" style="background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: 600;">Processar Arquivo</button>
+        </div>
+        <div class="info-box" style="background: #FFF9E6; border: 1px solid #FFE58F;">
+            <p style="font-size: 12px; color: #856404;"><b>Modelo de Colunas:</b><br>Seção | Processo | Parte | Vara | Local | Tarefa | Resposta</p>
+        </div>
+    </div>
+
+    <!-- TELA DE EXPORTAÇÃO -->
+    <div id="export-view" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="closeView('export-view')">Fechar</button>
+            <div style="font-weight: 600;">Exportar Relatório</div>
+        </div>
+        <div class="info-box">
+            <button onclick="exportExcel()" style="background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 600; margin-bottom: 10px;">📊 Baixar em Excel (.xlsx)</button>
+            <button onclick="exportText()" style="background: #333; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 600; margin-bottom: 10px;">📄 Baixar em Texto (.txt)</button>
+            <button onclick="clearAll()" style="background: #dc3545; color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; font-size: 13px; margin-top: 40px;">⚠️ Limpar Todas as Notas</button>
+        </div>
+    </div>
 </div>
 
 <script>
-// ============ DATA ============
-const CASES = [
-  { id:"c1", section:"Varas Cíveis — Fortaleza", processo:"0114537-03.2019.8.06.0001", parte:"ASSETECE", vara:"9ª Vara Cível", local:"Sejud", tarefa:"Agilizar a intimação do IFCE para cumprir a ordem de bloqueio." },
-  { id:"c2", section:"Varas Cíveis — Fortaleza", processo:"3008878-41.2025.8.06.0001", parte:"M7, Nisabro Fujita e outros", vara:"10ª Vara Cível", local:"Gabinete", tarefa:"Agilizar apreciação de nossa última petição, em resposta à decisão de suspensão do processo por ordem em tema repetitivo. MULTI7 CAPITAL CONSULTORIA LTDA., NISABRO FUJITA FILHO, ADOLFO BICHUCHER NETO e GONZALO BEZERRA DE MENEZES MOTA expõem que o processo foi suspenso com base no Tema 1417 do STF, porém esclarecem que a controvérsia não envolve caso fortuito externo ou força maior, mas sim falha interna de manutenção da aeronave, situação que configura fortuito interno e não afasta a responsabilidade civil da companhia aérea. Sustentam que não há discussão constitucional ou conflito entre CDC e CBA, motivo pelo qual a suspensão não se aplica ao caso concreto.", lastResp:"Thiago falou com a Letícia da 10ª Vara e ela disse que iria repassar o acesso ao processo. Me falou que o juiz está todos os dias na vara e que ele atende de acordo com a disponibilidade. Não precisa marcar horário para conversar com o magistrado." },
-  { id:"c3", section:"Varas Cíveis — Fortaleza", processo:"0182995-82.2013.8.06.0001", parte:"Botija Capital", vara:"20ª Vara Cível", local:"Sejud", tarefa:"Agilizar lavratura do termo de penhora." },
-  { id:"c4", section:"Varas Cíveis — Fortaleza", processo:"0046671-66.2005.8.06.0001", parte:"COPLI", vara:"20ª Vara Cível", local:"Gabinete", tarefa:"Agilizar despacho. Nossa petição junta certidão de casamento atualizada do executado, demonstrando seu regime de bens, conforme solicitado pelo magistrado, para apreciação dos pedidos de busca de bens feito anteriormente.\n\nAlgumas orientações da magistrada em diligência anterior:\n1 - iria apreciar a petição dentro da ordem cronológica de conclusão;\n2 - se pedir vários pedidos, eles só serão apreciados 1 por vez, conforme a necessidade diante do valor da dívida.\n4 - Ela reforçou que há medidas que podem ser adotadas diretamente pelo advogado, como averbar na matrícula do imóvel a informação da dívida." },
-  { id:"c5", section:"Varas Cíveis — Fortaleza", processo:"0223869-26.2024.8.06.0001", parte:"Jose Pompeu de Souza Brasil Junior", vara:"22ª Vara Cível", local:"Gabinete", tarefa:"Agilizar julgamento antecipado. As partes peticionaram neste sentido." },
-  { id:"c6", section:"Varas Cíveis — Fortaleza", processo:"0046284-27.2000.8.06.0001", parte:"Joaquim Tarcísio x Maria Irenilda", vara:"27ª Vara Cível", local:"Sejud", tarefa:"Agilizar envio de ofício ao cartório da 3ª Zona Imobiliária para cancelar matrícula feita por ocasião da usucapião que foi anulada." },
-  { id:"c7", section:"Varas Cíveis — Fortaleza", processo:"0256512-42.2021.8.06.0001", parte:"Zélia Cardoso de Oliveira", vara:"29ª Vara Cível", local:"Gabinete", tarefa:"Peticionamos informando o abaixo relatado, pedindo que apresentem as informações e documentos sob pena de multa.\n1 - Em 28/3/25, o perito solicitou documentação complementar.\n2 - A autora apresentou a documentação em 11/4/25.\n3 - Foi determinado às executadas a juntada de documentos.\n4 - Elas responderam (17/6/25) dizendo que não apresentaram, por entenderem ser irrelevante.\n\n19/12 - Despacho: Juiz determinou ao perito que se manifestasse sobre a petição das Rés.\n28/12 - Perito sustenta a necessidade dos documentos." },
-  { id:"c8", section:"Varas Cíveis — Fortaleza", processo:"0120520-80.2019.8.06.0001", parte:"ASSETECE", vara:"37ª Vara Cível", local:"Gabinete", tarefa:"Agilizar pedido de desarquivamento e cumprimento de sentença." },
-  { id:"cs1", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0249742-67.2020.8.06.0001", parte:"ASSETECE", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Apreciação de petição de 06/10/25: A ASSETECE requer providências para efetivar o cumprimento de sentença. Pedidos: penhora no rosto dos autos, penhora do veículo FORD/FUSION placas HXR 2626, penhora de créditos junto à PagSeguro.", lastResp:"Já está com o magistrado Dr. Daniel de Menezes Figueiredo. Renovado pedido ao gabinete. 18/12 - Felipe fez novo requerimento para apreciação." },
-  { id:"cs2", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0470120-12.2010.8.06.0001", parte:"BLP Investimentos LTDA", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Agilizar cumprimento da decisão de fev/2025: a) pesquisa de bens via Sniper e SREI; b) inclusão no SERASAJUD (JÁ FEITO).", lastResp:"27/01/26 - Feita a inscrição no Serasajud. 18/12 - Marcos falou com Felipe que fez nova solicitação de agilidade." },
-  { id:"cs3", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0084550-39.2007.8.06.0001", parte:"Fujita Granitos Ltda", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Aguardar nova reunião com o magistrado (última agendada 06/11, Marcos faltou). Pedir despacho da petição: citação do devedor frustrada, pede pesquisas via SIEL, RENAJUD, INFOSEG e Sisbajud.", lastResp:"Marcos falou com Felipe e pediu apreciação da petição." },
-  { id:"cs4", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0179045-94.2015.8.06.0001", parte:"Rock Construções", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Agilizar petição de 01/10/2025: a) assinatura do alvará (R$ 2.606,44); b) liberação do saldo de R$ 8.395,64; c) mandado de imissão na posse.", lastResp:"18/12 - Marcos falou com Felipe e pediu apreciação. 17/10 - Cristina registrou pedido de agilidade." },
-  { id:"cs5", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0617324-12.2000.8.06.0001", parte:"Rock Construções", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Ofício do Detran/BA retornou: veículo JMY8989/BA apreendido em Feira de Santana. Agilizar apreciação da petição, especialmente levantamento do valor incontroverso de R$ 82 mil." },
-  { id:"cs6", section:"Cumpr. Sentença Cível — Núcleo 4.0", processo:"0192623-56.2017.8.06.0001", parte:"Ana Thays Landim", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Agilizar despacho de petição que atualiza o valor da dívida com aplicação da multa e medidas de busca de bens (Sisbajud, Renajud e Infojud)." },
-  { id:"cf1", section:"Cumpr. Sentença Fazendária — Núcleo 4.0", processo:"0205454-78.2013.8.06.0001", parte:"Duplo M. Construtora Ltda", vara:"Núcleo 4.0", local:"Gabinete", tarefa:"Agilizar cumprimento da decisão de fev/26: restrição via RENAJUD sobre veículos IVECO/EUROCARGO 230E24, placas OCO 8912, 8712, 9082 e 8812." },
-  { id:"s1", section:"Sucessões — Fortaleza", processo:"0069863-04.2000.8.06.0001", parte:"Thomaz Pompeu de Souza Brasil Bisneto", vara:"1ª Vara de Sucessões", local:"Gabinete", tarefa:"Agilizar despacho, primeiras declarações reapresentadas em documento único conforme despacho de 08/10.", lastResp:"18/12 - A servidora Júlia atendeu, anotou os dados e disse que repassaria à magistrada." },
-  { id:"t1", section:"TJCE — Tribunal", processo:"0200625-39.2022.8.06.0001", parte:"Maranhão Mineração Ltda", vara:"1ª Câmara Dir. Público", local:"", tarefa:"Julgamento favorável. Aguardar recurso ou trânsito em julgado." },
-  { id:"t2", section:"TJCE — Tribunal", processo:"0631099-57.2024.8.06.0000", parte:"Saet Administração Técnicos Ltda", vara:"3ª Câmara Dir. Privado", local:"", tarefa:"Pedir julgamento do agravo interno. Preclusão, não recorreu das decisões anteriores. Autos conclusos desde 11/08/25.", lastResp:"04/03/2026 - Thiago: \"O desembargador atende segunda, terça e quinta a partir das 14:30.\"" },
-  { id:"t3", section:"TJCE — Tribunal", processo:"0016554-78.2016.8.06.0075", parte:"José Nuno", vara:"4ª Câmara Dir. Privado", local:"", tarefa:"Julgamento favorável. Aguardar recurso ou trânsito em julgado." },
-  { id:"tr1", section:"Justiça do Trabalho", processo:"0000391-21.2017.5.07.0007", parte:"Rosa Maria Silveira", vara:"7ª VT Fortaleza", local:"", tarefa:"Agilizar expedição de ofícios para o leiloeiro e, após, para o 5º CRI." },
-  { id:"o1", section:"Outros Municípios, VF e JEC", processo:"0036190-05.2012.8.06.0064", parte:"Cenpla x RMF Construtora", vara:"1ª VC Caucaia/CE", local:"Gabinete", tarefa:"Agilizar pesquisa de endereços das sucessoras via INFOJUD, INFOSEG e SIEL. Despacho determinando isso em 25/09/25." },
-  { id:"o2", section:"Outros Municípios, VF e JEC", processo:"0201258-50.2023.8.06.0119", parte:"Rebeca Correia Macedo", vara:"1ª VC Maranguape", local:"", tarefa:"Perguntar ao Thiago o que fazer." },
-  { id:"o3", section:"Outros Municípios, VF e JEC", processo:"0202647-91.2022.8.06.0091", parte:"Rodrigo Bedê e outros x Comercial Iguatuense", vara:"1ª VC Iguatu", local:"", tarefa:"Agilizar julgamento conjunto de todas as ações entre as partes." },
-  { id:"o4", section:"Outros Municípios, VF e JEC", processo:"0000294-41.2014.8.06.0027", parte:"Rafael Leônidas", vara:"2ª VC Redenção", local:"", tarefa:"Agilizar despacho da última petição de juntada dos dados bancários." },
-  { id:"o5", section:"Outros Municípios, VF e JEC", processo:"0807174-58.2024.4.05.8100", parte:"Rock Construções", vara:"2ª VF TRF5 Caucaia", local:"", tarefa:"Agilizar despacho diante da manifestação da defensoria enquanto curadora de ausentes." },
-  { id:"o6", section:"Outros Municípios, VF e JEC", processo:"3000944-60.2024.8.06.0003", parte:"Sara Parente x Banco Inter", vara:"5ª Turma Recursal", local:"", tarefa:"Agilizar julgamento pelo novo relator (Dr. Marcelo impedido).", lastResp:"Autos seriam remetidos a juiz da 6ª turma, provavelmente Dr. Bruno." },
-  { id:"o7", section:"Outros Municípios, VF e JEC", processo:"0872899-29.2024.8.14.0301", parte:"Karime Souto El Husny", vara:"9ª VC Pará", local:"", tarefa:"Agilizar apreciação das petições que pedem certificação do prazo da Icatu e novo mandado sob pena de multa." },
-  { id:"o8", section:"Outros Municípios, VF e JEC", processo:"0012786-69.2008.4.05.8100", parte:"Cenpla x Faz. Nacional", vara:"20ª Vara Federal", local:"", tarefa:"Agilizar intimação da Fazenda sobre a sentença e trânsito em julgado." },
-  { id:"a1", section:"Administrativos", processo:"Pren. 357416", parte:"Espólio de Odonel Gonçalves", vara:"2º CRI", local:"", tarefa:"Pendente no 2º CRI. Acompanhar resposta (5 dias a partir do registro da Jamile)." },
-  { id:"a2", section:"Administrativos", processo:"118227", parte:"Espólio de Maria Eliene", vara:"1º Ofício Notas", local:"", tarefa:"Cálculo de ITCD - SEFAZ. Processo Tramita Nº: 19001.310285/2025-79." },
-  { id:"a3", section:"Administrativos", processo:"—", parte:"Espólio de Maria Gorette Vieira de Melo", vara:"SEFAZ/CE", local:"", tarefa:"Distribuindo p/ Fiscal. Aguardando regularização da prefeitura." },
-  { id:"a4", section:"Administrativos", processo:"749086", parte:"Norma Sylvia de Vieira Maranhão", vara:"4º CRI", local:"", tarefa:"Aguardando retorno. Pegar a certidão." },
-  { id:"a5", section:"Administrativos", processo:"19001.056171.2025-78", parte:"Isabela Borba", vara:"Impugnação ITCD", local:"", tarefa:"Redirecionado. Agendado atendimento com fiscal." },
-  { id:"a6", section:"Administrativos", processo:"—", parte:"Lúcio Maranhão", vara:"4ª zona", local:"", tarefa:"Aguardando retorno." },
-  { id:"a7", section:"Administrativos", processo:"19001.056172/2024-31", parte:"Manoel Pergentino", vara:"Cálculo ITCD", local:"", tarefa:"Petição protocolada. Informar que não há cotas de empresa, anexar extratos IPTU." },
-  { id:"a8", section:"Administrativos", processo:"A011/2023", parte:"Arthur da Costa Souza", vara:"Proc. Arbitral", local:"", tarefa:"Aguardando resposta do árbitro sobre pagamento para conta diferente." },
-  { id:"a9", section:"Administrativos", processo:"06.2022.00001202-3", parte:"Pompeu (casarão)", vara:"MPCE - Meio Ambiente", local:"", tarefa:"Acompanhar os andamentos do processo, mensalmente." },
+// ============ DADOS E PERSISTÊNCIA ============
+let cases = [];
+let notes = JSON.parse(localStorage.getItem('law_notes') || '{}');
+
+// Dados iniciais caso não haja importação
+const defaultCases = [
+    { id: "1", section: "Cível", processo: "0114537-03.2019.8.06.0001", parte: "ASSETECE", vara: "9ª Vara Cível", local: "Sejud", tarefa: "Agilizar intimação do IFCE." }
 ];
 
-const SECTIONS = [
-  "Varas Cíveis — Fortaleza",
-  "Cumpr. Sentença Cível — Núcleo 4.0",
-  "Cumpr. Sentença Fazendária — Núcleo 4.0",
-  "Sucessões — Fortaleza",
-  "TJCE — Tribunal",
-  "Justiça do Trabalho",
-  "Outros Municípios, VF e JEC",
-  "Administrativos",
-];
-
-const ICONS = { "Varas Cíveis — Fortaleza":"⚖️", "Cumpr. Sentença Cível — Núcleo 4.0":"📋", "Cumpr. Sentença Fazendária — Núcleo 4.0":"🏛️", "Sucessões — Fortaleza":"📜", "TJCE — Tribunal":"🏢", "Justiça do Trabalho":"👷", "Outros Municípios, VF e JEC":"📍", "Administrativos":"📁" };
-const COLORS = { "Varas Cíveis — Fortaleza":"#1a5276", "Cumpr. Sentença Cível — Núcleo 4.0":"#1e8449", "Cumpr. Sentença Fazendária — Núcleo 4.0":"#7d3c98", "Sucessões — Fortaleza":"#b9770e", "TJCE — Tribunal":"#c0392b", "Justiça do Trabalho":"#2e86c1", "Outros Municípios, VF e JEC":"#117a65", "Administrativos":"#616a6b" };
-
-const caseMap = {};
-CASES.forEach(c => caseMap[c.id] = c);
-
-// ============ STATE ============
-let updates = {};
-let expanded = {};
-SECTIONS.forEach(s => expanded[s] = true);
-let currentCase = null;
-
-function loadUpdates() {
-  try { updates = JSON.parse(localStorage.getItem("diligencias_updates") || "{}"); } catch(e) { updates = {}; }
-}
-function saveUpdates() {
-  localStorage.setItem("diligencias_updates", JSON.stringify(updates));
-}
-function totalUpdates() {
-  return Object.values(updates).reduce((s, a) => s + a.length, 0);
-}
-function hasUpdates(id) { return updates[id] && updates[id].length > 0; }
-
-function fmtDate(d) {
-  const dt = new Date(d);
-  const pad = n => String(n).padStart(2,"0");
-  return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-}
-function todayStr() {
-  const d = new Date();
-  const pad = n => String(n).padStart(2,"0");
-  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
-}
-function esc(s) {
-  const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
-}
-
-// ============ RENDER LIST ============
-function renderList() {
-  loadUpdates();
-  const search = document.getElementById("search-input").value.toLowerCase().trim();
-  const filtered = CASES.filter(c => {
-    if (!search) return true;
-    return c.parte.toLowerCase().includes(search) || c.processo.toLowerCase().includes(search) || c.vara.toLowerCase().includes(search) || c.section.toLowerCase().includes(search);
-  });
-  const grouped = {};
-  SECTIONS.forEach(s => grouped[s] = []);
-  filtered.forEach(c => { if (grouped[c.section]) grouped[c.section].push(c); });
-
-  document.getElementById("header-sub").textContent = CASES.length + " processos" + (totalUpdates() > 0 ? ` · ${totalUpdates()} atualização(ões)` : "");
-
-  const fab = document.getElementById("fab");
-  if (totalUpdates() > 0) {
-    fab.classList.remove("hidden");
-    fab.textContent = `📤 Exportar (${totalUpdates()})`;
-  } else {
-    fab.classList.add("hidden");
-  }
-
-  const clearBtn = document.getElementById("search-clear");
-  if (search) clearBtn.classList.remove("hidden"); else clearBtn.classList.add("hidden");
-
-  let html = "";
-  SECTIONS.forEach(sec => {
-    const items = grouped[sec];
-    if (items.length === 0) return;
-    const color = COLORS[sec];
-    const isOpen = expanded[sec];
-    const secUp = items.filter(c => hasUpdates(c.id)).length;
-    html += `<div class="section-block">`;
-    html += `<button class="section-header" style="border-left:4px solid ${color}" onclick="toggleSection('${sec}')">`;
-    html += `<div class="section-left"><span class="section-icon">${ICONS[sec]}</span><span class="section-name">${esc(sec)}</span></div>`;
-    html += `<div class="section-right">`;
-    if (secUp > 0) html += `<span class="section-badge" style="background:${color}">${secUp}</span>`;
-    html += `<span class="chevron ${isOpen ? 'open' : ''}">›</span></div></button>`;
-    if (isOpen) {
-      items.forEach(c => {
-        html += `<button class="case-card" onclick="openCase('${c.id}')">`;
-        html += `<div class="case-top"><div class="case-parte">${esc(c.parte)}</div>`;
-        if (hasUpdates(c.id)) html += `<span class="update-badge" style="background:${color}">${updates[c.id].length}</span>`;
-        html += `</div>`;
-        html += `<div class="case-processo">${esc(c.processo)}</div>`;
-        html += `<div class="case-meta"><span class="meta-tag">${esc(c.vara)}</span>`;
-        if (c.local) html += `<span class="meta-tag">${esc(c.local)}</span>`;
-        html += `</div></button>`;
-      });
+function init() {
+    const savedCases = localStorage.getItem('law_cases');
+    if (savedCases) {
+        cases = JSON.parse(savedCases);
+    } else {
+        cases = defaultCases;
     }
-    html += `</div>`;
-  });
-  document.getElementById("list-body").innerHTML = html;
+    renderList();
 }
 
-function toggleSection(sec) { expanded[sec] = !expanded[sec]; renderList(); }
-function clearSearch() { document.getElementById("search-input").value = ""; renderList(); }
+// ============ RENDERIZAÇÃO ============
+function renderList() {
+    const searchTerm = document.getElementById('search').value.toLowerCase();
+    const container = document.getElementById('list-content');
+    container.innerHTML = '';
 
-// ============ DETAIL ============
+    const sections = [...new Set(cases.map(c => c.section))];
+
+    sections.forEach(sec => {
+        const secCases = cases.filter(c => c.section === sec && 
+            (c.parte.toLowerCase().includes(searchTerm) || c.processo.toLowerCase().includes(searchTerm)));
+        
+        if (secCases.length === 0) return;
+
+        const secHeader = document.createElement('div');
+        secHeader.className = 'section-title';
+        secHeader.textContent = sec;
+        container.appendChild(secHeader);
+
+        secCases.forEach(c => {
+            const hasNotes = notes[c.id] ? notes[c.id].length : 0;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => openCase(c.id);
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="case-name">${c.parte}</div>
+                    ${hasNotes ? `<span class="badge">${hasNotes}</span>` : ''}
+                </div>
+                <div class="case-id">${c.processo}</div>
+                <div class="case-tag">${c.vara} • ${c.local}</div>
+            `;
+            container.appendChild(card);
+        });
+    });
+}
+
+// ============ NAVEGAÇÃO ============
+let currentCaseId = null;
+
 function openCase(id) {
-  currentCase = id;
-  const c = caseMap[id];
-  const color = COLORS[c.section];
-  document.getElementById("view-list").classList.add("hidden");
-  document.getElementById("view-detail").classList.remove("hidden");
-  document.getElementById("detail-header").style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
-  document.getElementById("detail-title").textContent = c.parte;
-  document.getElementById("detail-sub").textContent = c.processo;
-  document.getElementById("detail-chips").innerHTML =
-    `<span class="chip">${esc(c.vara)}</span>` + (c.local ? `<span class="chip">${esc(c.local)}</span>` : "");
-  document.getElementById("send-btn").style.background = color;
-  document.getElementById("note-input").value = "";
-  document.getElementById("send-btn").disabled = true;
-  renderDetail();
+    currentCaseId = id;
+    const c = cases.find(x => x.id == id);
+    document.getElementById('det-title').textContent = c.parte;
+    
+    let html = `
+        <div class="info-box">
+            <div class="label">Processo</div><div class="val">${c.processo}</div>
+            <div class="label">Vara / Local</div><div class="val">${c.vara} | ${c.local}</div>
+            <div class="label">Tarefa</div><div class="val" style="color:#007AFF">${c.tarefa}</div>
+            ${c.resposta ? `<div class="label">Última Resposta</div><div class="val" style="font-style:italic">${c.resposta}</div>` : ''}
+        </div>
+        <div id="notes-container" style="padding: 0 16px;"></div>
+    `;
+    
+    document.getElementById('det-body').innerHTML = html;
+    renderNotes();
+    document.getElementById('detail-view').classList.add('active');
 }
 
-function renderDetail() {
-  const c = caseMap[currentCase];
-  const caseUpdates = updates[currentCase] || [];
-  let html = `<div class="info-card"><div class="info-label">Tipo de Tarefa</div><div class="info-text">${esc(c.tarefa)}</div></div>`;
-  if (c.lastResp) {
-    html += `<div class="info-card warning"><div class="info-label">Última Resposta Registrada</div><div class="info-text">${esc(c.lastResp)}</div></div>`;
-  }
-  html += `<div class="divider"><span class="divider-line"></span><span class="divider-text">Atualizações (${caseUpdates.length})</span><span class="divider-line"></span></div>`;
-  if (caseUpdates.length === 0) {
-    html += `<div class="empty-state">Nenhuma atualização ainda. Use o campo abaixo para registrar.</div>`;
-  }
-  caseUpdates.forEach((u, i) => {
-    html += `<div class="update-card"><div class="update-header"><span class="update-date">${fmtDate(u.date)}</span><button class="delete-btn" onclick="deleteUpdate(${i})">✕</button></div><div class="update-text">${esc(u.text)}</div></div>`;
-  });
-  document.getElementById("detail-body").innerHTML = html;
-}
-
-function addUpdate() {
-  const text = document.getElementById("note-input").value.trim();
-  if (!text) return;
-  if (!updates[currentCase]) updates[currentCase] = [];
-  updates[currentCase].push({ text, date: new Date().toISOString() });
-  saveUpdates();
-  document.getElementById("note-input").value = "";
-  document.getElementById("send-btn").disabled = true;
-  renderDetail();
-}
-
-function deleteUpdate(idx) {
-  if (!confirm("Remover esta atualização?")) return;
-  updates[currentCase].splice(idx, 1);
-  if (updates[currentCase].length === 0) delete updates[currentCase];
-  saveUpdates();
-  renderDetail();
-}
-
-function goBack() {
-  currentCase = null;
-  document.getElementById("view-detail").classList.add("hidden");
-  document.getElementById("view-list").classList.remove("hidden");
-  renderList();
-}
-
-// ============ EXPORT ============
-function generateText() {
-  const lines = [];
-  lines.push("═══════════════════════════════════════════");
-  lines.push("  RELATÓRIO DE DILIGÊNCIAS — " + todayStr());
-  lines.push("═══════════════════════════════════════════\n");
-  let count = 0;
-  SECTIONS.forEach(sec => {
-    const casesInSec = CASES.filter(c => c.section === sec && hasUpdates(c.id));
-    if (casesInSec.length === 0) return;
-    lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    lines.push(`  ${sec.toUpperCase()}`);
-    lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-    casesInSec.forEach(c => {
-      lines.push(`▸ ${c.processo} — ${c.parte}`);
-      lines.push(`  Vara: ${c.vara}${c.local ? " | Local: " + c.local : ""}`);
-      (updates[c.id] || []).forEach(u => { count++; lines.push(`  ✎ [${fmtDate(u.date)}] ${u.text}`); });
-      lines.push("");
+function renderNotes() {
+    const container = document.getElementById('notes-container');
+    container.innerHTML = '<div class="label" style="margin-left:4px">Atualizações</div>';
+    
+    const caseNotes = notes[currentCaseId] || [];
+    if (caseNotes.length === 0) {
+        container.innerHTML += '<p style="color:#8e8e93; font-size:14px; margin:10px 4px;">Nenhuma atualização registrada.</p>';
+    }
+    
+    caseNotes.forEach((n, idx) => {
+        const div = document.createElement('div');
+        div.style = "background:#fff; padding:12px; border-radius:10px; margin-bottom:8px; position:relative";
+        div.innerHTML = `
+            <div style="font-size:11px; color:#8e8e93; margin-bottom:4px">${n.date}</div>
+            <div style="font-size:14px">${n.text}</div>
+            <button onclick="deleteNote(${idx})" style="position:absolute; right:10px; top:10px; border:none; background:none; color:#ff3b30; font-size:12px">Apagar</button>
+        `;
+        container.appendChild(div);
     });
-  });
-  if (count === 0) lines.push("Nenhuma atualização registrada.");
-  return lines.join("\n");
 }
 
-function generateCSV() {
-  const rows = [["Seção","Processo","Parte","Vara","Local","Data","Atualização"]];
-  SECTIONS.forEach(sec => {
-    CASES.filter(c => c.section === sec && hasUpdates(c.id)).forEach(c => {
-      (updates[c.id] || []).forEach(u => {
-        rows.push([sec, c.processo, c.parte, c.vara, c.local || "", fmtDate(u.date), u.text]);
-      });
+function addNote() {
+    const txt = document.getElementById('note-text').value.trim();
+    if (!txt) return;
+
+    if (!notes[currentCaseId]) notes[currentCaseId] = [];
+    
+    const now = new Date();
+    const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    notes[currentCaseId].push({ text: txt, date: dateStr });
+    localStorage.setItem('law_notes', JSON.stringify(notes));
+    
+    document.getElementById('note-text').value = '';
+    renderNotes();
+    renderList();
+}
+
+function deleteNote(idx) {
+    if(!confirm("Apagar nota?")) return;
+    notes[currentCaseId].splice(idx, 1);
+    localStorage.setItem('law_notes', JSON.stringify(notes));
+    renderNotes();
+    renderList();
+}
+
+// ============ IMPORT / EXPORT ============
+
+function openImport() { document.getElementById('import-view').classList.add('active'); }
+function openExport() { document.getElementById('export-view').classList.add('active'); }
+function closeView(id) { document.getElementById(id).classList.remove('active'); }
+
+async function handleImport() {
+    const file = document.getElementById('excel-file').files[0];
+    if (!file) return alert("Selecione um arquivo");
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(firstSheet);
+
+        if (json.length > 0) {
+            cases = json.map((row, index) => ({
+                id: index + 1,
+                section: row.Seção || "Geral",
+                processo: row.Processo || "---",
+                parte: row.Parte || "Sem Nome",
+                vara: row.Vara || "---",
+                local: row.Local || "",
+                tarefa: row.Tarefa || "",
+                resposta: row.Resposta || ""
+            }));
+            localStorage.setItem('law_cases', JSON.stringify(cases));
+            alert("Importado com sucesso!");
+            closeView('import-view');
+            renderList();
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function exportExcel() {
+    let exportData = [];
+    cases.forEach(c => {
+        if (notes[c.id]) {
+            notes[c.id].forEach(n => {
+                exportData.push({
+                    'Parte': c.parte,
+                    'Processo': c.processo,
+                    'Vara': c.vara,
+                    'Data': n.date,
+                    'Atualização': n.text
+                });
+            });
+        }
     });
-  });
-  return rows.map(r => r.map(v => `"${(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+
+    if (exportData.length === 0) return alert("Não há atualizações para exportar.");
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Atualizações");
+    XLSX.writeFile(wb, `Relatorio_Diligencias_${new Date().getTime()}.xlsx`);
 }
 
-function downloadFile(content, filename, type) {
-  const blob = new Blob(["\uFEFF" + content], { type: type + ";charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
+function exportText() {
+    let txt = "RELATÓRIO DE DILIGÊNCIAS\n========================\n\n";
+    cases.forEach(c => {
+        if (notes[c.id] && notes[c.id].length > 0) {
+            txt += `PARTE: ${c.parte}\nPROCESSO: ${c.processo}\n`;
+            notes[c.id].forEach(n => {
+                txt += `[${n.date}] - ${n.text}\n`;
+            });
+            txt += "------------------------\n";
+        }
+    });
+
+    const blob = new Blob([txt], { type: 'text/plain' });
+    const anchor = document.createElement('a');
+    anchor.download = "relatorio.txt";
+    anchor.href = window.URL.createObjectURL(blob);
+    anchor.click();
 }
 
-function showExport() {
-  document.getElementById("view-list").classList.add("hidden");
-  document.getElementById("view-export").classList.remove("hidden");
-  document.getElementById("export-count").textContent = totalUpdates() + " atualização(ões) registrada(s)";
-  document.getElementById("preview-box").textContent = generateText();
-  document.getElementById("export-feedback").classList.add("hidden");
-}
-
-function goBackFromExport() {
-  document.getElementById("view-export").classList.add("hidden");
-  document.getElementById("view-list").classList.remove("hidden");
-  renderList();
-}
-
-function downloadTXT() {
-  downloadFile(generateText(), `Diligencias_${todayStr().replace(/\//g,"-")}.txt`, "text/plain");
-  showFeedback("Arquivo .TXT baixado!");
-}
-function downloadCSV() {
-  downloadFile(generateCSV(), `Diligencias_${todayStr().replace(/\//g,"-")}.csv`, "text/csv");
-  showFeedback("Arquivo .CSV baixado!");
-}
-function copyText() {
-  navigator.clipboard.writeText(generateText()).then(() => showFeedback("Texto copiado!")).catch(() => showFeedback("Erro ao copiar"));
-}
-function showFeedback(msg) {
-  const el = document.getElementById("export-feedback");
-  el.textContent = msg; el.classList.remove("hidden");
-  setTimeout(() => el.classList.add("hidden"), 2500);
-}
 function clearAll() {
-  if (confirm("Apagar TODAS as atualizações? Esta ação não pode ser desfeita.")) {
-    updates = {}; saveUpdates(); goBackFromExport();
-  }
+    if(confirm("Isso apagará TODAS as suas anotações. Continuar?")) {
+        notes = {};
+        localStorage.setItem('law_notes', JSON.stringify(notes));
+        renderList();
+        alert("Dados limpos.");
+    }
 }
 
-// ============ INIT ============
-document.getElementById("search-input").addEventListener("input", renderList);
-document.getElementById("note-input").addEventListener("input", function() {
-  document.getElementById("send-btn").disabled = !this.value.trim();
-});
-loadUpdates();
-renderList();
+init();
 </script>
+
 </body>
 </html>
