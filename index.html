@@ -193,26 +193,29 @@
     <div class="import-body">
       <div class="import-card">
         <h3>📤 Exportar processos atuais</h3>
-        <p>Copie o texto abaixo e cole no Excel ou Google Sheets. Cada coluna é separada por TAB.</p>
-        <button class="template-btn" onclick="copyProcessosText()" style="margin-bottom:8px">📋 Copiar dados dos processos</button>
+        <p>Texto com os processos atuais do app. Copie e envie por WhatsApp ou salve como referência.</p>
+        <button class="template-btn" onclick="copyProcessosText()" style="margin-bottom:8px">📋 Copiar texto dos processos</button>
         <textarea id="export-processos" style="width:100%;height:120px;font-size:11px;font-family:'SF Mono',Consolas,monospace;border:1px solid #ddd;border-radius:8px;padding:10px;resize:vertical;background:#f8f9fa" readonly></textarea>
         <div class="export-feedback hidden" id="export-processos-fb" style="margin-top:6px"></div>
       </div>
       <div class="import-card">
-        <h3>📥 Importar processos</h3>
-        <p>Copie as linhas do Excel/Google Sheets e cole no campo abaixo. As colunas devem seguir esta ordem (separadas por TAB):</p>
+        <h3>📥 Importar processos por texto</h3>
+        <p>Cole o texto no campo abaixo. Cada processo deve estar em <b>uma linha</b>, com os campos separados por <b> | </b> (barra vertical).</p>
+        <p style="font-size:12px;color:#888;margin-bottom:4px">Formato de cada linha:</p>
         <div class="col-list" style="margin-bottom:12px">
-          <b>Seção</b> → <b>Processo</b> → <b>Parte</b> → <b>Vara</b> → <b>Local</b> → <b>Tarefa</b> → <b>Última Resposta</b><br><br>
-          Dica: copie as células diretamente do Excel/Sheets — o separador TAB é automático.
+          Processo | Parte | Vara (Local) | Tarefa | Resposta<br><br>
+          <b>Exemplo:</b><br>
+          0114537-03.2019.8.06.0001 | ASSETECE | 9ª Vara Cível (Sejud) | Agilizar intimação do IFCE | Thiago falou com a Letícia<br><br>
+          O local entre parênteses é opcional. Se não houver resposta, use <b>-</b>
         </div>
-        <textarea id="import-text" style="width:100%;height:150px;font-size:12px;font-family:'SF Mono',Consolas,monospace;border:2px dashed #27ae60;border-radius:10px;padding:12px;resize:vertical;background:#f0faf4" placeholder="Cole aqui as linhas copiadas do Excel..."></textarea>
+        <textarea id="import-text" style="width:100%;height:180px;font-size:12px;font-family:'SF Mono',Consolas,monospace;border:2px dashed #27ae60;border-radius:10px;padding:12px;resize:vertical;background:#f0faf4" placeholder="Cole aqui o texto com os processos..."></textarea>
         <button class="import-btn" onclick="handleTextImport()" style="margin-top:10px">✅ Importar Processos</button>
         <div id="import-result" class="hidden"></div>
       </div>
       <div class="import-card">
-        <h3>Seções válidas</h3>
-        <p style="margin-bottom:4px">Use exatamente um desses nomes na primeira coluna:</p>
-        <div class="col-list" id="sections-list"></div>
+        <h3>💡 Como gerar o texto a partir da planilha?</h3>
+        <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:10px">Use o <b>Conversor de Diligências</b> configurado no Claude (ou ChatGPT). Basta anexar a planilha Excel e digitar <b>"Converta"</b>. Ele gera automaticamente o texto no formato correto, pronto para enviar por WhatsApp e colar aqui.</p>
+        <p style="font-size:12px;color:#888;line-height:1.5">Consulte o <b>POP — Procedimento Operacional Padrão</b> para instruções completas de configuração.</p>
       </div>
     </div>
   </div>
@@ -343,11 +346,12 @@ function clearAll(){if(confirm("Apagar TODAS as atualizações?")){updates={};sa
 // ============ IMPORT ============
 function showImport(){
   document.getElementById("view-list").classList.add("hidden");document.getElementById("view-import").classList.remove("hidden");
-  document.getElementById("sections-list").innerHTML=SECTIONS.map(s=>`• ${s}`).join("<br>");
   document.getElementById("import-result").classList.add("hidden");document.getElementById("import-text").value="";
   // Generate export text for processos
-  const lines=[];lines.push("Seção\tProcesso\tParte\tVara\tLocal\tTarefa\tÚltima Resposta");
-  CASES.forEach(c=>{lines.push([c.section,c.processo,c.parte,c.vara,c.local||"",c.tarefa||"",c.lastResp||""].join("\t"))});
+  const lines=[];
+  CASES.forEach(c=>{
+    const parts=[c.processo,c.parte,c.vara+(c.local?" ("+c.local+")":""),c.tarefa||"—",c.lastResp||"—"];
+    lines.push(parts.join(" | "))});
   document.getElementById("export-processos").value=lines.join("\n")}
 
 function copyProcessosText(){
@@ -356,26 +360,54 @@ function copyProcessosText(){
 
 function goBackFromImport(){document.getElementById("view-import").classList.add("hidden");document.getElementById("view-list").classList.remove("hidden");renderList()}
 
+function guessSection(vara,tarefa){
+  const v=(vara||"").toLowerCase();const t=(tarefa||"").toLowerCase();
+  if(v.includes("trabalho")||v.includes(" vt "))return "Justiça do Trabalho";
+  if(v.includes("câmara")||v.includes("camara")||v.includes("turma recursal"))return "TJCE — Tribunal";
+  if(v.includes("núcleo 4.0")||v.includes("nucleo 4.0")){
+    if(v.includes("fazend")||t.includes("fazend"))return "Cumpr. Sentença Fazendária — Núcleo 4.0";
+    return "Cumpr. Sentença Cível — Núcleo 4.0"}
+  if(v.includes("sucessões")||v.includes("sucessoes"))return "Sucessões — Fortaleza";
+  if(v.includes("fazenda"))return "Varas Cíveis — Fortaleza";
+  if(v.includes("cri")||v.includes("ofício")||v.includes("sefaz")||v.includes("mpce")||v.includes("arbitral")||v.includes("tramita")||v.includes("zona"))return "Administrativos";
+  if(v.includes("federal")||v.includes("trf")||v.includes("maranguape")||v.includes("caucaia")||v.includes("redenção")||v.includes("iguatu")||v.includes("pará")||v.includes("jec"))return "Outros Municípios, VF e JEC";
+  if(v.includes("cível")||v.includes("civel")||v.includes("vara"))return "Varas Cíveis — Fortaleza";
+  return "Outros Municípios, VF e JEC"}
+
 function handleTextImport(){
   const text=document.getElementById("import-text").value.trim();
   const resEl=document.getElementById("import-result");
   if(!text){resEl.className="import-result error";resEl.classList.remove("hidden");resEl.textContent="Cole o texto antes de importar.";return}
   try{
-    const rows=text.split("\n").map(r=>r.split("\t"));
-    // Check if first row is header
+    const rawLines=text.split("\n").filter(l=>l.trim());
+    // Detect if first line is header (contains keywords like "processo", "parte")
     let startIdx=0;
-    if(rows[0]&&rows[0][0]&&(rows[0][0].toLowerCase().includes("seção")||rows[0][0].toLowerCase().includes("secao")||rows[0][0].toLowerCase().includes("section")))startIdx=1;
+    if(rawLines[0]){const fl=rawLines[0].toLowerCase();
+      if((fl.includes("processo")||fl.includes("nº"))&&(fl.includes("parte")||fl.includes("interessad")))startIdx=1}
     const newCases=[];let counter=0;
-    for(let i=startIdx;i<rows.length;i++){
-      const r=rows[i];if(!r||r.length<2)continue;
-      const section=(r[0]||"").trim();const processo=(r[1]||"").trim();const parte=(r[2]||"").trim();
+    for(let i=startIdx;i<rawLines.length;i++){
+      const line=rawLines[i].trim();if(!line)continue;
+      // Split by | (pipe)
+      const parts=line.split("|").map(p=>p.trim());
+      if(parts.length<2)continue;
+      const processo=parts[0]||"";const parte=parts[1]||"";
       if(!processo&&!parte)continue;
       counter++;
-      const validSection=SECTIONS.find(s=>s.toLowerCase()===section.toLowerCase())||"Outros Municípios, VF e JEC";
-      newCases.push({id:"imp_"+counter,section:validSection,processo:processo||"—",parte:parte||"Sem nome",vara:(r[3]||"").trim(),local:(r[4]||"").trim(),tarefa:(r[5]||"").trim(),lastResp:(r[6]||"").trim()})}
-    if(!newCases.length){resEl.className="import-result error";resEl.classList.remove("hidden");resEl.textContent="Nenhum processo encontrado. Verifique se o texto está separado por TABs (copie do Excel).";return}
+      const vara=parts[2]||"";
+      // Extract local from vara if in parentheses: "9ª Vara Cível (Gabinete)" → vara="9ª Vara Cível", local="Gabinete"
+      let varaClean=vara,local="";
+      const parenMatch=vara.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+      if(parenMatch){varaClean=parenMatch[1].trim();local=parenMatch[2].trim()}
+      const tarefa=parts[3]||"";
+      const lastResp=parts[4]||"";
+      const section=guessSection(varaClean,tarefa);
+      newCases.push({id:"imp_"+counter,section:section,processo:processo,parte:parte||"Sem nome",vara:varaClean,local:local,tarefa:tarefa!=="—"?tarefa:"",lastResp:lastResp!=="—"?lastResp:""})}
+    if(!newCases.length){resEl.className="import-result error";resEl.classList.remove("hidden");resEl.textContent="Nenhum processo encontrado. Verifique se cada linha usa | para separar os campos.";return}
     CASES=newCases;rebuildMap();saveCases();
-    resEl.className="import-result success";resEl.classList.remove("hidden");resEl.innerHTML=`✅ <b>${newCases.length} processos</b> importados!<br>Atualizações anteriores mantidas.<br><br>Toque em "← Voltar" para ver.`
+    // Count per section
+    const secCount={};newCases.forEach(c=>{secCount[c.section]=(secCount[c.section]||0)+1});
+    let detail=Object.entries(secCount).map(([s,n])=>`${s}: ${n}`).join("<br>");
+    resEl.className="import-result success";resEl.classList.remove("hidden");resEl.innerHTML=`✅ <b>${newCases.length} processos</b> importados!<br><br>${detail}<br><br>Toque em "← Voltar" para ver.`
   }catch(err){resEl.className="import-result error";resEl.classList.remove("hidden");resEl.textContent="Erro: "+err.message}}
 
 // ============ PASSWORD ============
